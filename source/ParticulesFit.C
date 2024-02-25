@@ -24,7 +24,7 @@ Table 4 : pp  collision
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 //Initialisation of differents variables
 TString file = Form("./data/HEPData-ins1762368-v1.root"); //You can choose the file here
-TString table = Form("Table 4"); //You can choose the table here
+TString table = Form("Table 3"); //You can choose the table here
 const int n_histogram = 1; //You can choose the number of histograms
 
 //Variables that will depends on the file and the table taked
@@ -140,50 +140,50 @@ void ParticulesFit(){
 
 
 	if (table == "Table 3" && file == "./data/HEPData-ins1762368-v1.root") { 
-		expo_fit_para = "IE+"; //The best fit method depends on the function and on the file so we need to take that into account
-		boltz_fit_para = "IE+";
-		power_fit_para = "IE+";
-		levy_fit_para = "IE+";
+		expo_fit_para = "0IE+"; //The best fit method depends on the function and on the file so we need to take that into account
+		boltz_fit_para = "0IE+";
+		power_fit_para = "0IE+";
+		levy_fit_para = "0IE+";
 		title = "p_{T} distributions of #phi meson measured in Pb-Pb collisions at #sqrt{s}= 5.02 TeV";
 		masse = masse_phi; //The mass need to be different if we study proton of phi mesons
 		save_name = save_name+"_meson_table_3.pdf";
 	}
 		
 	else if(table == "Table 4" && file == "./data/HEPData-ins1762368-v1.root") {
-		expo_fit_para = "IEM+";
-		boltz_fit_para = "IEM+";
-		power_fit_para = "EM+";
-		levy_fit_para = "IEM+";
+		expo_fit_para = "0IEM+";
+		boltz_fit_para = "0IEM+";
+		power_fit_para = "0EM+";
+		levy_fit_para = "0IEM+";
 		title = "p_{T} distributions of #phi meson measured in pp collisions at #sqrt{s}= 5.02 TeV";
 		masse = masse_phi;
 		save_name = save_name+"_meson_table_4.pdf";
 	}
 		
 	else if(table == "Table 5" && file == "./data/HEPData-1569102768-v1.root") {
-		expo_fit_para = "REM+";
-		boltz_fit_para = "REM+";
-		power_fit_para = "REM+";
-		levy_fit_para = "IE+";
+		expo_fit_para = "0REM+";
+		boltz_fit_para = "0REM+";
+		power_fit_para = "0REM+";
+		levy_fit_para = "0IE+";
 		title = "p_{T} distributions of p-#bar{p} measured in Pb-Pb collisions at #sqrt{s}= 5.02 TeV";
 		masse = masse_proton;
 		save_name = save_name+"_proton_table_5.pdf";
 	}
 	
 	else if(table == "Table 6" && file == "./data/HEPData-1569102768-v1.root") {
-		expo_fit_para = "IEM+";
-		boltz_fit_para = "IEM+";
-		power_fit_para = "EM+";
-		levy_fit_para = "EM+";
+		expo_fit_para = "0IEM+";
+		boltz_fit_para = "0IEM+";
+		power_fit_para = "0EM+";
+		levy_fit_para = "0EM+";
 		title = "p_{T} distributions of p-#bar{p} measured in pp collisions at #sqrt{s}= 5.02 TeV";
 		masse = masse_proton;
 		save_name = save_name+"_proton_table_6.pdf";
 	}
 
 	else {
-		expo_fit_para = "IEM+";
-		boltz_fit_para = "IEM+";
-		power_fit_para = "IEM+";
-		levy_fit_para = "IEM+";
+		expo_fit_para = "0IEM+";
+		boltz_fit_para = "0IEM+";
+		power_fit_para = "0IEM+";
+		levy_fit_para = "0IEM+";
 		title = "p_{T} distributions of a collision";
 		save_name = save_name+table;
 		save_name = save_name+".pdf";
@@ -295,10 +295,10 @@ void ParticulesFit(){
 		//Fitting two times made sometimes better results
 		myYields->Fit(func_expo, expo_fit_para+"Q", "", xmin, xmax);  //We add "Q" for the first run so that he will be quiet and wont appear in the end
 		myYields->Fit(func_expo, expo_fit_para, "", xmin, xmax); 
-		
+
 		myYields->Fit(func_boltz, boltz_fit_para+"Q", "", xmin, xmax);
 		myYields->Fit(func_boltz, boltz_fit_para, "", xmin, xmax);
-		
+
 		myYields->Fit(func_law, power_fit_para+"Q", "", xmin, xmax);
 		myYields->Fit(func_law, power_fit_para, "", xmin, xmax);
 
