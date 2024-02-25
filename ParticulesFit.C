@@ -28,11 +28,12 @@ TString table = Form("Table 4"); //You can choose the table here
 
 
 //Variables that will depends on the file and the table taked
-TString title = Form("");
-TString expo_fit_para = Form("");
-TString boltz_fit_para = Form("");
-TString power_fit_para = Form("");
-TString levy_fit_para = Form("");
+TString title = Form(" ");
+TString expo_fit_para = Form(" ");
+TString boltz_fit_para = Form(" ");
+TString power_fit_para = Form(" ");
+TString levy_fit_para = Form(" ");
+TString save_name = Form("./ParticulesFit");
 
 
 //Definition of the differents masses in Gev
@@ -127,6 +128,7 @@ void ParticulesFit(){
 			levy_fit_para = "IE+";
 			title = "p_{T} distributions of #phi meson measured in Pb-Pb collisions at #sqrt{s}= 5.02 TeV";
 			masse = masse_phi; //The mass need to be different if we study proton of phi mesons
+			save_name = save_name+"_meson_table_3.pdf";
 		}
 		
 		else if(table == "Table 4" && file == "HEPData-ins1762368-v1.root") {
@@ -136,6 +138,7 @@ void ParticulesFit(){
 			levy_fit_para = "IEM+";
 			title = "p_{T} distributions of #phi meson measured in pp collisions at #sqrt{s}= 5.02 TeV";
 			masse = masse_phi;
+			save_name = save_name+"_meson_table_4.pdf";
 		}
 		
 		else if(table == "Table 5" && file == "HEPData-1569102768-v1.root") {
@@ -145,6 +148,7 @@ void ParticulesFit(){
 			levy_fit_para = "IE+";
 			title = "p_{T} distributions of p-#bar{p} measured in Pb-Pb collisions at #sqrt{s}= 5.02 TeV";
 			masse = masse_proton;
+			save_name = save_name+"_proton_table_5.pdf";
 		}
 		
 		else if(table == "Table 6" && file == "HEPData-1569102768-v1.root") {
@@ -154,6 +158,7 @@ void ParticulesFit(){
 			levy_fit_para = "EM+";
 			title = "p_{T} distributions of p-#bar{p} measured in pp collisions at #sqrt{s}= 5.02 TeV";
 			masse = masse_proton;
+			save_name = save_name+"_proton_table_6.pdf";
 		}
 		else {
 			expo_fit_para = "IEM+";
@@ -366,5 +371,5 @@ void ParticulesFit(){
 		tleg->Draw();
 	//}
 	firstCanvas->Draw(); //We display the Canvas
-
+	firstCanvas->SaveAs(save_name); //We save the canva as a pdf image
 }
