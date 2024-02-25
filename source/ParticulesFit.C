@@ -49,11 +49,6 @@ double integral_law[n_histogram];
 double integral_levy[n_histogram];
 
 
-//Variables needed for the suppresion of the bin without value.
-double NoNull = 0;
-int step = 0;
-
-
 // We add the errors
 double err1Value = 0;
 double err2Value = 0;
@@ -61,16 +56,8 @@ double combinedError = 0;
 double binError = 0;
 
 
-int nmax = 0;
 double xmin = 0;
 double xmax = 0;
-
-
-//Variable needed for the calculation of the integral of the histogram		
-double integrale = 0;
-double largeur = 0;
-double aire= 0;
-double hauteur=0;
 
 
 //Parameter for the legends
@@ -113,6 +100,37 @@ double levy(double *x, double *par){
 	double T = par[2];
 	double nT= n*T;
 	return DN_Dy*((n-1)*(n-2)/(nT*(nT+(n-2)*masse)))*x[0]*pow(1+(m_T-masse)/(nT),-n);
+}
+
+
+//Suppresion of the bin without value that are egal to 0
+//We think that if there is less value in one of the table it will appear as a value exactly egal to 0 at the end.
+int ghost_data(TH1F *Yields){
+		double NoNull = 0;
+		double step = 0;
+		int nmax = 0;
+		while(NoNull == 0) {
+			NoNull += abs(Yields->GetBinContent(Yields->GetNbinsX()-step));
+			step++;
+		}
+	step--;
+	nmax = Yields->GetNbinsX()-step;
+	return nmax;
+}
+
+double integrale_histo(TH1F *Yield, int number_bins){
+	double integrale = 0;
+	double largeur = 0;
+	double aire= 0;
+	double hauteur=0;
+	TAxis *xAxis = Yield->GetXaxis();
+	for (int k = 1; k <= number_bins; ++k) {
+		largeur = abs(xAxis->GetBinCenter(k)-xAxis->GetBinCenter(k-1));
+		hauteur = Yield->GetBinContent(k);
+		aire = largeur * hauteur;
+		integrale += aire;
+	}
+	return integrale;
 }
 
 void ParticulesFit(){
@@ -189,7 +207,7 @@ void ParticulesFit(){
 	blankHisto->Draw();
 
 
-	for(int i = 1; i <= n_histogram; ++i) { //You can use the for loop if you want to see on all the histogram
+	for(int i = 1; i <= n_histogram; ++i) { //We loop for all the histograms in the table
 
 		//Name of the histogram and their errors
 		TString histName = Form("Hist1D_y%d", i);
@@ -202,7 +220,7 @@ void ParticulesFit(){
 		TH1F *myErr2 = (TH1F*)MesonDirectoryFile->Get(histErrName2.Data());
 		
 		blankHisto->GetYaxis()->SetRangeUser(1e-7,myYields->GetBinContent(1)*10); //We define here the range of the Y axix that will depends on the value of the histogram.
-		
+
 		if (table == "Table 4" && file == "./data/HEPData-ins1762368-v1.root") { // The table 4 of the Meson file got some corrupted data so we change them manually we use the data on the online version of the file
 			myYields->SetBinContent(5,0.0167252);
 			myErr1->SetBinContent(5,0.000210925);
@@ -212,17 +230,7 @@ void ParticulesFit(){
 			myErr2->SetBinContent(6,0.000803366);
 		}
 
-
-		//Suppresion of the bin without value that are egal to 0
-		//We think that if there is less value in one of the table it will appear as a value exactly egal to 0 at the end.
-		NoNull = 0;
-		step = 0;
-		while(NoNull == 0) {
-			NoNull += abs(myYields->GetBinContent(myYields->GetNbinsX()-step));
-			step++;
-		}
-		step--;
-		nmax = myYields->GetNbinsX()-step;
+		int nmax = ghost_data(myYields); //We erase the data at the end that are not really there
 		myYields->GetXaxis()->SetRange(0,nmax);
 
 
@@ -244,15 +252,6 @@ void ParticulesFit(){
 		
 		myYields->SetStats(0);
 		myYields->Draw("SAME"); // "SAME" to write on the same canvas everything.
-
-		// Integral of histogram
-		
-		for (int k = 1; k <= nmax; ++k) {
-			largeur = abs(xaxis->GetBinCenter(k)-xaxis->GetBinCenter(k-1));
-			hauteur = myYields->GetBinContent(k);
-			aire = largeur * hauteur;
-			integrale += aire;
-		}
 
 		// Create function for every histogram
 		TF1 * func_levy = new TF1(Form("func_levy_%d", i),levy,0,20,4);
@@ -326,7 +325,7 @@ void ParticulesFit(){
 		std::cout << "Integral of the boltzmann function for the histogramm number : " << i << " : " << integral_boltz[i] << std::endl;
 		std::cout << "Integral of the power_law function for the histogramm number : " << i << " : " << integral_law[i] << std::endl;	
 		std::cout << "Integral of the Levy function for the histogramm number : " << i << " : " << integral_levy[i] << std::endl;
-		std::cout << "Integrale of the histogram : " << integrale << std::endl;
+		std::cout << "Integrale of the histogram : " << integrale_histo(myYields, nmax) << std::endl;
 		
 		// Legends
 		TLegend *legend = new TLegend(0.6,0.6,0.95,0.95);
