@@ -19,6 +19,7 @@ Table 4 : pp  collision
 #include "TDirectoryFile.h"
 #include "TCanvas.h"
 #include "TF1.h"
+#include "TLatex.h"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 //Initialisation of differents variables
@@ -80,6 +81,7 @@ double error_T = 0;
 double error_n = 0;
 
 
+//Definition of the differents function
 double exponentielle(double *x, double *par) {
 	double m=par[2];
 	double s1 = sqrt(pow(m,2) +pow(x[0],2));
@@ -95,7 +97,11 @@ double boltzmann(double *x, double *par){
 }
 
 double power_law(double *x, double *par){
-	return par[0]*x[0]/(pow((1+pow((x[0]/par[1]),2)),par[2]));
+	double A = par[0]; 
+	double p0 = par[1];
+	double n = par[2];
+	double B = 1+pow((x[0]/p0),2);
+	return A*x[0]/(pow(B,n));
 }
 
 double levy(double *x, double *par){
@@ -108,7 +114,7 @@ double levy(double *x, double *par){
 	return DN_Dy*((n-1)*(n-2)/(nT*(nT+(n-2)*masse)))*x[0]*pow(1+(m_T-masse)/(nT),-n);
 }
 
-void Table4(){
+void ParticulesFit(){
 	//We recover the file and the table defined before
 	TFile *myFile = new TFile(file);
 	TDirectoryFile *MesonDirectoryFile = (TDirectoryFile*)myFile->Get(table);
@@ -119,7 +125,7 @@ void Table4(){
 			boltz_fit_para = "IE+";
 			power_fit_para = "IE+";
 			levy_fit_para = "IE+";
-			title = "p_{T} distributions of phi meson measured in Pb-Pb collisions at sqrt(s)= 5.02 TeV";
+			title = "p_{T} distributions of #phi meson measured in Pb-Pb collisions at #sqrt{s}= 5.02 TeV";
 			masse = masse_phi; //The mass need to be different if we study proton of phi mesons
 		}
 		
@@ -128,7 +134,7 @@ void Table4(){
 			boltz_fit_para = "IEM+";
 			power_fit_para = "EM+";
 			levy_fit_para = "IEM+";
-			title = "p_{T} distributions of phi meson measured in pp collisions at sqrt(s)= 5.02 TeV";
+			title = "p_{T} distributions of #phi meson measured in pp collisions at #sqrt{s}= 5.02 TeV";
 			masse = masse_phi;
 		}
 		
@@ -137,7 +143,7 @@ void Table4(){
 			boltz_fit_para = "REM+";
 			power_fit_para = "REM+";
 			levy_fit_para = "IE+";
-			title = "p_{T} distributions of p-pbar measured in Pb-Pb collisions at sqrt(s)= 5.02 TeV";
+			title = "p_{T} distributions of p-#bar{p} measured in Pb-Pb collisions at #sqrt{s}= 5.02 TeV";
 			masse = masse_proton;
 		}
 		
@@ -146,7 +152,7 @@ void Table4(){
 			boltz_fit_para = "IEM+";
 			power_fit_para = "EM+";
 			levy_fit_para = "EM+";
-			title = "p_{T} distributions of p-pbar measured in pp collisions at sqrt(s)= 5.02 TeV";
+			title = "p_{T} distributions of p-#bar{p} measured in pp collisions at #sqrt{s}= 5.02 TeV";
 			masse = masse_proton;
 		}
 		else {
@@ -165,6 +171,12 @@ void Table4(){
 	firstCanvas->SetLogy();
 	TH2F *blankHisto = new TH2F("histogram",title,21,0,20,1000,1e-7,100);
 	blankHisto->SetXTitle("p_{T} (GeV/c)");
+	blankHisto->GetXaxis()->SetTitleSize(0.04);
+	blankHisto->GetXaxis()->SetTitleOffset(1.2);
+	blankHisto->SetYTitle("#frac{d^{2}N}{dydp_{T}} (GeV/c)^{-1} ");
+	blankHisto->GetYaxis()->SetTitleSize(0.04);
+	blankHisto->GetYaxis()->SetTitleOffset(1.6);
+	blankHisto->SetTitleOffset(1.5);
 	blankHisto->SetStats(0);
 	blankHisto->Draw();
 
@@ -290,48 +302,66 @@ void Table4(){
 		myYields->Fit(func_levy, levy_fit_para, "", xmin, xmax);
 
 
-		integral_expo[i] = func_expo->Integral(0,20); //Calcul of the differents integrals
+		//Calcul of the differents integrals
+		integral_expo[i] = func_expo->Integral(0,20);
 		integral_boltz[i] = func_boltz->Integral(0,20);
 		integral_law[i] = func_law->Integral(0,20);
 		integral_levy[i] = func_levy->Integral(0,20);
 		
-		std::cout << "Integral of the expo function for the histogramm number : " << i << " : " << integral_expo[i] << std::endl;//We display the value of the differents integrals
+		
+		//We draw the function on all the interval 
+		func_expo->Draw("same");
+		func_boltz->Draw("same");
+		func_law->Draw("same");
+		func_levy->Draw("same");
+		
+		
+		//We display the value of the differents integrals
+		std::cout << "Integral of the expo function for the histogramm number : " << i << " : " << integral_expo[i] << std::endl;
 		std::cout << "Integral of the boltzmann function for the histogramm number : " << i << " : " << integral_boltz[i] << std::endl;
 		std::cout << "Integral of the power_law function for the histogramm number : " << i << " : " << integral_law[i] << std::endl;	
-		std::cout << "Integral of the levy function for the histogramm number : " << i << " : " << integral_levy[i] << std::endl;
-		std::cout << "integrale of  the histogram : " << integrale << std::endl;
+		std::cout << "Integral of the Levy function for the histogramm number : " << i << " : " << integral_levy[i] << std::endl;
+		std::cout << "integrale of the histogram : " << integrale << std::endl;
 		
 		// Legends
 		TLegend *legend = new TLegend(0.6,0.6,0.95,0.95);
-		
-		dNdy_levy = func_levy->GetParameter(0); // dN/dy
-		temp_levy = func_levy->GetParameter(2); // temperature
-		n_levy = func_levy->GetParameter(1); // n
-		error_dN = func_levy->GetParError(0);
-		error_T = func_levy->GetParError(2);
-		error_n = func_levy->GetParError(1);
-		
-		Char_t chardNdy[45];
-		snprintf(chardNdy,45,"dN/dy_{Levy} = %.5f +/- %.5f", dNdy_levy, error_dN);
-		Char_t charTemp[45]; ;
-		snprintf(charTemp,45,"T_{Levy}   = %.2f +/- %.2f (MeV)",temp_levy, error_T);
-		Char_t charn[45]; 
-		snprintf(charn,45,"n_{Levy}  = %.2f +/- %.2f ",n_levy, error_n);
 
+		//Parameters and their error (of the Levy-Tsallis function for example)
+		double dNdy_levy = func_levy->GetParameter(0); // dN/dy parameter 
+		double temp_levy = func_levy->GetParameter(2); // temperature parameter
+		double n_levy = func_levy->GetParameter(1); // n parameter
+		double error_dN = func_levy->GetParError(0); // error on dN/dy
+		double error_T = func_levy->GetParError(2); //error on temperature
+		double error_n = func_levy->GetParError(1); //error on n
+		double temp_levy_multiplied = temp_levy * 1000; //the temperature is multiplied by X1000
+		double error_T_multiplied = error_T * 1000; //error of the temperature X1000
+
+		//Print the parameter +/- their error
+		Char_t chardNdy[45]; //Choose the size of the parameter
+		snprintf(chardNdy,45,"dN/dy_{Levy} = %.5f #pm %.5f", dNdy_levy, error_dN);
+		Char_t charTemp[45];
+		snprintf(charTemp, 45, "T_{Levy}   = %.0f #pm %.0f MeV", temp_levy_multiplied, error_T_multiplied); 
+		Char_t charn[45]; 
+		snprintf(charn,45,"n_{Levy}  = %.1f #pm %.1f ",n_levy, error_n);
+
+		//Draw the parameters in LaTeX
 		TLatex *fitText = new TLatex(0.75,0.52,chardNdy);
 		fitText->SetNDC(1);
 		fitText->SetTextSize(0.03);
-		fitText->DrawLatex(0.65,0.75,chardNdy);
-		fitText->DrawLatex(0.65,0.70,charTemp);
-		fitText->DrawLatex(0.65,0.65,charn);
-	
-		TLegend *tleg = new TLegend(0.65,0.8,0.90,0.9);
+		fitText->DrawLatex(0.65,0.65,chardNdy);
+		fitText->DrawLatex(0.65,0.60,charTemp);
+		fitText->DrawLatex(0.65,0.55,charn);
+  	
+		TLegend *tleg = new TLegend(0.65,0.7,0.90,0.8);
 		tleg->AddEntry(func_expo,"Exponential fit","l");
+		tleg->AddEntry((TObject*)nullptr, "", ""); //We put a empty legend to make space between legends
 		tleg->AddEntry(func_boltz,"Boltzmann fit","l");
+		tleg->AddEntry((TObject*)nullptr, "", "");
 		tleg->AddEntry(func_law,"Power law fit","l");
+		tleg->AddEntry((TObject*)nullptr, "", "");
 		tleg->AddEntry(func_levy,"Levy fit","l");
+		
 		tleg->SetTextSize(0.03);
-		//tleg->SetFillColor(10);
 		tleg->SetBorderSize(0);
 		tleg->Draw();
 	//}
