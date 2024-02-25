@@ -326,7 +326,7 @@ void ParticulesFit(){
 		std::cout << "Integral of the boltzmann function for the histogramm number : " << i << " : " << integral_boltz[i] << std::endl;
 		std::cout << "Integral of the power_law function for the histogramm number : " << i << " : " << integral_law[i] << std::endl;	
 		std::cout << "Integral of the Levy function for the histogramm number : " << i << " : " << integral_levy[i] << std::endl;
-		std::cout << "integrale of the histogram : " << integrale << std::endl;
+		std::cout << "Integrale of the histogram : " << integrale << std::endl;
 		
 		// Legends
 		TLegend *legend = new TLegend(0.6,0.6,0.95,0.95);
