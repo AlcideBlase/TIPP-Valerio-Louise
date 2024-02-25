@@ -1,11 +1,11 @@
 /*
-Protons File : File HEPData-1569102768-v1.root
-Table 5 : Pb-Pb collision 
-Table 6 : pp collision
-
 Mesons File : File HEPData-ins1762368-v1.root
 Table 3 : Pb-Pb collision
 Table 4 : pp  collision
+
+Protons File : File HEPData-1569102768-v1.root
+Table 5 : Pb-Pb collision 
+Table 6 : pp collision
 */
 
 #include <iostream>
@@ -24,7 +24,7 @@ Table 4 : pp  collision
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 //Initialisation of differents variables
 TString file = Form("./data/HEPData-ins1762368-v1.root"); //You can choose the file here
-TString table = Form("Table 3"); //You can choose the table here
+TString table = Form("Table 4"); //You can choose the table here
 const int n_histogram = 1; //You can choose the number of histograms
 
 //Variables that will depends on the file and the table taked
@@ -325,7 +325,7 @@ void ParticulesFit(){
 		std::cout << "Integral of the boltzmann function for the histogramm number : " << i << " : " << integral_boltz[i] << std::endl;
 		std::cout << "Integral of the power_law function for the histogramm number : " << i << " : " << integral_law[i] << std::endl;	
 		std::cout << "Integral of the Levy function for the histogramm number : " << i << " : " << integral_levy[i] << std::endl;
-		std::cout << "Integrale of the histogram : " << integrale_histo(myYields, nmax) << std::endl;
+		std::cout << "Integral of the histogram : " << integrale_histo(myYields, nmax) << std::endl;
 		
 		// Legends
 		TLegend *legend = new TLegend(0.6,0.6,0.95,0.95);
@@ -371,4 +371,14 @@ void ParticulesFit(){
 	}
 	firstCanvas->Draw(); //We display the Canvas
 	firstCanvas->SaveAs(save_name); //We save the canva as a pdf image
+	
+	
+	//We reset the string
+	title = " ";
+	expo_fit_para = " ";
+	boltz_fit_para = " ";
+	power_fit_para = " ";
+	levy_fit_para = " ";
+	save_name = "./output/ParticulesFit";
+	
 }
